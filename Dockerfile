@@ -19,9 +19,14 @@ ENV TORCH_HOME=/tmp/
 ENV OMP_NUM_THREADS=4
 ENV PYTHONUNBUFFERED=1
 
-# Clonar o repositório docling
-RUN git clone https://github.com/opierredsn/docling.git . && \
-    mv docs/examples/minimal.py .
+# Criar o arquivo minimal.py
+RUN echo 'from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline\n\
+def main():\n\
+    pipeline = StandardPdfPipeline()\n\
+    print("Pipeline initialized and ready to process PDFs")\n\
+\n\
+if __name__ == "__main__":\n\
+    main()' > minimal.py
 
 # Instalar docling com suporte CPU
 RUN pip install --no-cache-dir docling --extra-index-url https://download.pytorch.org/whl/cpu
