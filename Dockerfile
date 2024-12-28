@@ -1,28 +1,36 @@
 FROM python:3.11-slim-bookworm
 
-ENV GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
+WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y libgl1 libglib2.0-0 curl wget git procps \
-    && apt-get clean
+# Instalar dependências do sistema necessárias
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    curl \
+    wget \
+    git \
+    procps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# This will install torch with *only* cpu support
-# Remove the --extra-index-url part if you want to install all the gpu requirements
-# For more details in the different torch distribution visit https://pytorch.org/.
-RUN pip install --no-cache-dir docling --extra-index-url https://download.pytorch.org/whl/cpu
-
+# Configurações de ambiente
 ENV HF_HOME=/tmp/
 ENV TORCH_HOME=/tmp/
-
-COPY docs/examples/minimal.py /root/minimal.py
-
-RUN python -c 'from deepsearch_glm.utils.load_pretrained_models import load_pretrained_nlp_models; load_pretrained_nlp_models(verbose=True);'
-RUN python -c 'from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline; StandardPdfPipeline.download_models_hf(force=True);'
-
-# On container environments, always set a thread budget to avoid undesired thread congestion. Opa
 ENV OMP_NUM_THREADS=4
+ENV PYTHONUNBUFFERED=1
 
-# On container shell:
-# > cd /root/
-# > python minimal.py
+# Instalar docling com suporte CPU
+RUN pip install --no-cache-dir docling --extra-index-url https://download.pytorch.org/whl/cpu
 
+# Preparar modelos necessários
+RUN python -c 'from deepsearch_glm.utils.load_pretrained_models import load_pretrained_nlp_models; load_pretrained_nlp_models(verbose=True);' && \
+    python -c 'from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline; StandardPdfPipeline.download_models_hf(force=True);'
+
+# Copiar seu script de exemplo
+COPY . /app/
+
+# Porta (ajuste se necessário)
+EXPOSE 8000
+
+# Comando para iniciar
+CMD ["python", "minimal.py"]
