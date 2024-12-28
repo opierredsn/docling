@@ -19,9 +19,10 @@ COPY docs/examples/minimal.py /root/minimal.py
 RUN python -c 'from deepsearch_glm.utils.load_pretrained_models import load_pretrained_nlp_models; load_pretrained_nlp_models(verbose=True);'
 RUN python -c 'from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline; StandardPdfPipeline.download_models_hf(force=True);'
 
-# On container environments, always set a thread budget to avoid undesired thread congestion.
+# On container environments, always set a thread budget to avoid undesired thread congestion. Opa
 ENV OMP_NUM_THREADS=4
 
 # On container shell:
 # > cd /root/
 # > python minimal.py
+
