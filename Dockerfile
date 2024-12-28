@@ -19,15 +19,16 @@ ENV TORCH_HOME=/tmp/
 ENV OMP_NUM_THREADS=4
 ENV PYTHONUNBUFFERED=1
 
+# Clonar o repositório docling
+RUN git clone https://github.com/opierredsn/docling.git . && \
+    mv docs/examples/minimal.py .
+
 # Instalar docling com suporte CPU
 RUN pip install --no-cache-dir docling --extra-index-url https://download.pytorch.org/whl/cpu
 
 # Preparar modelos necessários
 RUN python -c 'from deepsearch_glm.utils.load_pretrained_models import load_pretrained_nlp_models; load_pretrained_nlp_models(verbose=True);' && \
     python -c 'from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline; StandardPdfPipeline.download_models_hf(force=True);'
-
-# Copiar seu script de exemplo
-COPY . /app/
 
 # Porta (ajuste se necessário)
 EXPOSE 8000
